@@ -82,6 +82,9 @@ class OpsGeniePlugin(notify.NotificationPlugin):
         return data
 
     def notify_users(self, group, event, fail_silently=False):
+        if not self.is_configured(group.project):
+            return
+
         api_key = self.get_option('api_key', group.project)
         recipients = self.get_option('recipients', group.project)
         alert_url = self.get_option('alert_url', group.project)
