@@ -1,7 +1,7 @@
 sentry-opsgenie
 ===============
 
-An extension for `OpsGenie <https://www.opsgenie.com>`_ which creates OpsGenie alerts.
+An extension for `OpsGenie <https://www.opsgenie.com>`_ which creates OpsGenie alerts our of Sentry events.
 
 Install
 -------
