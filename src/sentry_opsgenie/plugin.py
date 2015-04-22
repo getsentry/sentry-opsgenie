@@ -56,7 +56,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
     def is_configured(self, project):
         return all((
             self.get_option(k, project)
-            for k in ('api_key', 'recipients', 'alert_url')
+            for k in ('api_key', 'alert_url')
         ))
 
     def get_form_initial(self, project=None):
@@ -94,10 +94,12 @@ class OpsGeniePlugin(notify.NotificationPlugin):
         payload = {
            'apiKey': api_key,
            'message': message,
-           'recipients': recipients,
            'source': 'Sentry',
            'details': self.get_group_data(group, event)
         }
+
+        if recipients:
+            payload['recipients'] = recipients
 
         req = http.safe_urlopen(alert_url, json=payload)
         resp = req.json()
