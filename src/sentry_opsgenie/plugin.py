@@ -5,6 +5,8 @@ sentry_opsgenie.plugin
 :copyright: (c) 2015 by Sentry Team, see AUTHORS for more details.
 :license: Apache 2.0, see LICENSE for more details.
 """
+from __future__ import absolute_import
+
 import logging
 import sentry_opsgenie
 
@@ -16,7 +18,7 @@ from sentry.plugins.bases import notify
 from sentry.utils import json
 
 
-class OpsGenieptionsForm(notify.NotificationConfigurationForm):
+class OpsGenieOptionsForm(notify.NotificationConfigurationForm):
     api_key = forms.CharField(
         max_length=255,
         help_text='OpsGenie API key used for authenticating API requests',
@@ -49,7 +51,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
     description = 'Create OpsGenie alerts out of notifications.'
     conf_key = 'opsgenie'
     version = sentry_opsgenie.VERSION
-    project_conf_form = OpsGenieptionsForm
+    project_conf_form = OpsGenieOptionsForm
 
     logger = logging.getLogger('sentry.plugins.opsgenie')
 
