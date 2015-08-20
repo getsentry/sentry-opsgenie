@@ -84,8 +84,8 @@ class OpsGeniePlugin(notify.NotificationPlugin):
             'entity': group.culprit,
         }
 
-        payload['details']['event'] = dict(event.data or {})
-        payload['details']['event']['tags'] = event.get_tags()
+        payload['details']['Event'] = dict(event.data or {})
+        payload['details']['Event']['tags'] = event.get_tags()
 
         return payload
 
