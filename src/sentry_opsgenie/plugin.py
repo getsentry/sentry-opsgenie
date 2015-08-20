@@ -93,13 +93,13 @@ class OpsGeniePlugin(notify.NotificationPlugin):
         if not self.is_configured(group.project):
             return
 
-        api_key = self.get_option('apiKey', group.project)
+        api_key = self.get_option('api_key', group.project)
         recipients = self.get_option('recipients', group.project)
         alert_url = self.get_option('alert_url', group.project)
 
         payload = self.build_payload(group, event)
 
-        payload['api_key'] = api_key
+        payload['apiKey'] = api_key
         if recipients:
             payload['recipients'] = recipients
 
