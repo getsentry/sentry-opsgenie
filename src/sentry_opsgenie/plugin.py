@@ -66,22 +66,27 @@ class OpsGeniePlugin(notify.NotificationPlugin):
             'alert_url': 'https://api.opsgenie.com/v1/json/alert',
         }
 
-    # TODO(dcramer): this is duplicated from sentry-webhooks
-    def get_group_data(self, group, event):
-        data = {
-            'id': str(group.id),
-            'checksum': group.checksum,
-            'project': group.project.slug,
-            'project_name': group.project.name,
-            'logger': group.logger,
-            'level': group.get_level_display(),
-            'culprit': group.culprit,
+    def build_payload(self, group, event):
+        payload = {
             'message': event.message,
-            'url': group.get_absolute_url(),
+            'alias': getattr(group, 'message_short', group.message).encode('utf-8'),
+            'source': 'Sentry',
+            'details': {
+                'Sentry ID': str(group.id),
+                'Checksum': group.checksum,
+                'Project ID': group.project.slug,
+                'Project Name': group.project.name,
+                'Logger': group.logger,
+                'Level': group.get_level_display(),
+                'URL': group.get_absolute_url(),
+            },
+            'entity': group.culprit,
         }
-        data['event'] = dict(event.data or {})
-        data['event']['tags'] = event.get_tags()
-        return data
+
+        payload['details']['event'] = dict(event.data or {})
+        payload['details']['event']['tags'] = event.get_tags()
+
+        return payload
 
     def notify_users(self, group, event, fail_silently=False):
         if not self.is_configured(group.project):
@@ -91,15 +96,9 @@ class OpsGeniePlugin(notify.NotificationPlugin):
         recipients = self.get_option('recipients', group.project)
         alert_url = self.get_option('alert_url', group.project)
 
-        message = getattr(group, 'message_short', group.message).encode('utf-8')
+        payload = self.build_payload(group, event)
 
-        payload = {
-           'apiKey': api_key,
-           'message': message,
-           'source': 'Sentry',
-           'details': self.get_group_data(group, event)
-        }
-
+        payload['api_key'] = api_key
         if recipients:
             payload['recipients'] = recipients
 
