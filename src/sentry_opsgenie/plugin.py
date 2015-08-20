@@ -84,9 +84,13 @@ class OpsGeniePlugin(notify.NotificationPlugin):
             'entity': group.culprit,
         }
 
-        payload['details']['event'] = dict(event.data or {})
-        payload['details']['event']['tags'] = event.get_tags()
-
+        payload['details']['Event'] = dict(event.data or {})
+        
+        payload['tags'] = ','.join(
+            '%s:%s' % (str(k).replace(',', ''), str(v).replace(',', ''))
+            for k, v in dict(event.get_tags()).iteritems()
+        )
+        
         return payload
 
     def notify_users(self, group, event, fail_silently=False):
