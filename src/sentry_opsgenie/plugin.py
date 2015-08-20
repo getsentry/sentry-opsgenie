@@ -69,10 +69,11 @@ class OpsGeniePlugin(notify.NotificationPlugin):
     def build_payload(self, group, event):
         payload = {
             'message': event.message,
-            'alias': getattr(group, 'message_short', group.message).encode('utf-8'),
+            'alias': 'sentry: %d' % group.id,
             'source': 'Sentry',
             'details': {
                 'Sentry ID': str(group.id),
+                'Sentry Group': getattr(group, 'message_short', group.message).encode('utf-8'),
                 'Checksum': group.checksum,
                 'Project ID': group.project.slug,
                 'Project Name': group.project.name,
@@ -92,7 +93,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
         if not self.is_configured(group.project):
             return
 
-        api_key = self.get_option('api_key', group.project)
+        api_key = self.get_option('apiKey', group.project)
         recipients = self.get_option('recipients', group.project)
         alert_url = self.get_option('alert_url', group.project)
 
