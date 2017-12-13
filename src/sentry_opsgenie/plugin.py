@@ -63,7 +63,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
 
     def get_form_initial(self, project=None):
         return {
-            'alert_url': 'https://api.opsgenie.com/v1/json/alert',
+            'alert_url': 'https://api.opsgenie.com/v2/alerts',
         }
 
     def build_payload(self, group, event):
@@ -84,12 +84,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
             'entity': group.culprit,
         }
 
-        payload['details']['Event'] = dict(event.data or {})
-        
-        payload['tags'] = ','.join(
-            '%s:%s' % (str(k).replace(',', ''), str(v).replace(',', ''))
-            for k, v in dict(event.get_tags()).iteritems()
-        )
+        payload['tags'] = ['%s:%s' % (str(x).replace(',', ''), str(y).replace(',', '')) for x, y in event.get_tags()]
         
         return payload
 
@@ -103,12 +98,12 @@ class OpsGeniePlugin(notify.NotificationPlugin):
 
         payload = self.build_payload(group, event)
 
-        payload['apiKey'] = api_key
+        headers = {'Authorization': 'GenieKey ' + api_key}
+
         if recipients:
             payload['recipients'] = recipients
 
-        req = http.safe_urlopen(alert_url, json=payload)
-        resp = req.json()
+        resp = http.safe_urlopen(alert_url, json=payload, headers=headers)
 
-        if resp.get('status') != 'successful':
-            raise Exception('Unsuccessful response from OpsGenie: %s' % resp)
+        if not resp.ok:
+            raise Exception('Unsuccessful response from OpsGenie: %s' % resp.json())
