@@ -32,7 +32,7 @@ class OpsGenieOptionsForm(notify.NotificationConfigurationForm):
     alert_url = forms.CharField(
         max_length=255,
         label='OpsGenie Alert URL',
-        widget=forms.TextInput(attrs={'class': 'span6', 'placeholder': 'e.g. https://api.opsgenie.com/v1/json/alert'}),
+        widget=forms.TextInput(attrs={'class': 'span6', 'placeholder': 'e.g. https://api.opsgenie.com/v2/alerts'}),
         help_text='It must be visible to the Sentry server',
         required=True,
     )
