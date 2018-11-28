@@ -74,7 +74,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
             'source': 'Sentry',
             'details': {
                 'Sentry ID': str(group.id),
-                'Sentry Group': getattr(group, 'message_short', group.message).encode('utf-8'),
+                'Sentry Group': (getattr(group, 'title', None) or group.message).encode('utf-8'),
                 'Checksum': group.checksum,
                 'Project ID': group.project.slug,
                 'Project Name': group.project.name,
