@@ -82,7 +82,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
                 'Logger': group.logger,
                 'Level': group.get_level_display(),
                 'URL': group.get_absolute_url(),
-                'Triggering Rules': u','.join(triggering_rules),
+                'Triggering Rules': json.dumps(triggering_rules),
             },
             'entity': group.culprit,
         }
