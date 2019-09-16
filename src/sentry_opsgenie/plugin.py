@@ -33,7 +33,8 @@ class OpsGenieOptionsForm(notify.NotificationConfigurationForm):
     alert_url = forms.CharField(
         max_length=255,
         label='OpsGenie Alert URL',
-        widget=forms.TextInput(attrs={'class': 'span6', 'placeholder': 'e.g. https://api.opsgenie.com/v2/alerts'}),
+        widget=forms.TextInput(
+            attrs={'class': 'span6', 'placeholder': 'e.g. https://api.opsgenie.com/v2/alerts'}),
         help_text='It must be visible to the Sentry server',
         required=True,
     )
@@ -67,7 +68,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
             'alert_url': 'https://api.opsgenie.com/v2/alerts',
         }
 
-    def build_payload(self, group, event):
+    def build_payload(self, group, event, triggering_rules):
         payload = {
             'message': event.message,
             'alias': 'sentry: %d' % group.id,
@@ -81,15 +82,20 @@ class OpsGeniePlugin(notify.NotificationPlugin):
                 'Logger': group.logger,
                 'Level': group.get_level_display(),
                 'URL': group.get_absolute_url(),
+                'Triggering Rules': json.dumps(triggering_rules),
             },
             'entity': group.culprit,
         }
 
-        payload['tags'] = ['%s:%s' % (str(x).replace(',', ''), str(y).replace(',', '')) for x, y in event.get_tags()]
-        
+        payload['tags'] = [
+            '%s:%s' % (str(x).replace(',', ''), str(y).replace(',', ''))
+            for x, y
+            in event.get_tags()
+        ]
+
         return payload
 
-    def notify_users(self, group, event, fail_silently=False, **kwargs):
+    def notify_users(self, group, event, fail_silently=False, triggering_rules=None, **kwargs):
         if not self.is_configured(group.project):
             return
 
@@ -97,7 +103,7 @@ class OpsGeniePlugin(notify.NotificationPlugin):
         recipients = self.get_option('recipients', group.project)
         alert_url = self.get_option('alert_url', group.project)
 
-        payload = self.build_payload(group, event)
+        payload = self.build_payload(group, event, triggering_rules)
 
         headers = {'Authorization': 'GenieKey ' + api_key}
 
@@ -106,4 +112,5 @@ class OpsGeniePlugin(notify.NotificationPlugin):
 
         resp = http.safe_urlopen(alert_url, json=payload, headers=headers)
         if not resp.ok:
-            raise HTTPError('Unsuccessful response from OpsGenie: %s' % resp.json())
+            raise HTTPError(
+                'Unsuccessful response from OpsGenie: %s' % resp.json())
