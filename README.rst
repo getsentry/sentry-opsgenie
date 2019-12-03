@@ -1,6 +1,8 @@
 sentry-opsgenie
 ===============
 
+DEPRECATED: This project now lives in `sentry <https://github.com/getsentry/sentry/tree/master/src/sentry_plugins/opsgenie>`_
+
 An extension for `OpsGenie <https://www.opsgenie.com>`_ which creates OpsGenie alerts our of Sentry events.
 
 Install
